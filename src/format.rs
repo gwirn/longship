@@ -3,8 +3,8 @@ pub fn color_and_esc(instring: &str, shell: &str, color: u8) -> String {
     let esc_start: char = '\u{1b}';
     let esc_end_color: char = 'm';
 
-    let mut start_color = "\u{5c}\u{5b}";
-    let mut end_color = "\u{5c}\u{5d}";
+    let mut start_color = "\u{001}";
+    let mut end_color = "\u{002}";
     match shell {
         "bash" => {}
         "zsh" | "tcsh" => {

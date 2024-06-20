@@ -13,7 +13,7 @@ fn main() {
     let orange = 208;
     let grey = 245;
     let blue = 24;
-    let silver = 7;
+    let green = 65;
     let red = 9;
     env::set_var("CLICOLOR_FORCE", "1");
 
@@ -64,9 +64,9 @@ fn main() {
         "{}{} {}",
         color_and_esc(&ssh_string, &shell, {
             if is_root {
-                silver
-            } else {
                 red
+            } else {
+                green
             }
         }),
         path_string,
