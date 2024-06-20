@@ -1,4 +1,3 @@
-use colored::*;
 use file_search::*;
 use format::*;
 use std::env;
@@ -11,11 +10,11 @@ mod format;
 mod utils;
 
 fn main() {
-    let orange = CustomColor::new(255, 135, 0);
-    let grey = CustomColor::new(138, 138, 138);
-    let blue = CustomColor::new(0, 95, 135);
-    let silver = CustomColor::new(192, 192, 192);
-    let red = CustomColor::new(255, 0, 0);
+    let orange = 208;
+    let grey = 245;
+    let blue = 24;
+    let silver = 7;
+    let red = 9;
     env::set_var("CLICOLOR_FORCE", "1");
 
     let shell = get_shell();
