@@ -1,7 +1,7 @@
 use crate::proj_version;
 use crate::ProjSetting;
 use nu_ansi_term::Color::Fixed;
-pub fn color_and_esc(instring: &str, shell: &str, color: u8) -> String {
+pub fn color_and_esc(instring: &str, shell: &str, color: &u8) -> String {
     let esc_start: char = '\u{1b}';
     let esc_end_color: char = 'm';
 
@@ -20,7 +20,7 @@ pub fn color_and_esc(instring: &str, shell: &str, color: u8) -> String {
     }
 
     let mut escaped = false;
-    let final_string: String = Fixed(color)
+    let final_string: String = Fixed(*color)
         .paint(instring)
         .to_string()
         .chars()
@@ -51,11 +51,7 @@ pub fn proj_format(
     if proj_split.len() == settings.split_len {
         let pre_ps = format!("{}{}", settings.emoji, proj_split[settings.split_idx]);
         *proj_len += pre_ps.len();
-        *proj_string = format!(
-            "{} {} ",
-            *proj_string,
-            color_and_esc(&pre_ps, &shell, *color)
-        );
+        *proj_string = format!("{} {} ", *proj_string, color_and_esc(&pre_ps, shell, color));
         *emoji_space += settings.emoji_space_add
     }
 }

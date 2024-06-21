@@ -64,13 +64,13 @@ fn main() {
         "{}{} {}",
         color_and_esc(&ssh_string, &shell, {
             if is_root {
-                red
+                &red
             } else {
-                green
+                &green
             }
         }),
         path_string,
-        color_and_esc(&git_info, &shell, grey),
+        color_and_esc(&git_info, &shell, &grey),
     );
 
     let mut py = "".to_string();
@@ -124,8 +124,8 @@ fn main() {
         path,
         padding,
         proj_string,
-        color_and_esc(&py, &shell, blue),
-        color_and_esc("»", &shell, orange)
+        color_and_esc(&py, &shell, &blue),
+        color_and_esc("»", &shell, &orange)
     );
     println!("\r{} ", path);
 }
