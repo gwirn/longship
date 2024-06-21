@@ -1,49 +1,19 @@
 use file_search::*;
 use format::*;
-use std::collections::HashMap;
+use proj::*;
 use std::env;
-use std::fs;
-use std::process::Command;
 use std::usize;
 use terminal_size::{terminal_size, Height, Width};
 use utils::*;
 
 mod file_search;
 mod format;
+mod proj;
 mod utils;
 
-fn is_proj(pwd: &str, file_ending: &str) -> bool {
-    let mut yes_proj = false;
-    if let Ok(files) = fs::read_dir(pwd) {
-        for f in files.into_iter() {
-            if let Ok(file_name) = f {
-                if let Some(file_ext) = file_name.path().extension().and_then(|x| x.to_str()) {
-                    yes_proj = file_ext == file_ending;
-                    if yes_proj {
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    yes_proj
-}
-fn proj_version(com: &str, arg: &str) -> String {
-    match Command::new(com).arg(arg).output() {
-        Ok(out) => match String::from_utf8(out.stdout) {
-            Ok(o) => o,
-            Err(_) => "".to_string(),
-        },
-        Err(_) => "".to_string(),
-    }
-}
+static PROJECTS: &[&str] = &["rs", "go", "py"];
+
 fn main() {
-    // let file_extensions = HashMap::from([("py", "python"), ("rs", "rust"), ("go", "go")]);
-    let projects = HashMap::from([
-        ("python", ("py", ["python", "--version"])),
-        ("rust", ("rs", ["rustc", "--version"])),
-        ("go", ("go", ["go", "version"])),
-    ]);
     let orange = 208;
     let grey = 245;
     let blue = 24;
@@ -51,6 +21,7 @@ fn main() {
     let red = 9;
     let turquoise = 45;
     let carb_orange = 166;
+    let (python, rust, go) = get_proj_settings();
     env::set_var("CLICOLOR_FORCE", "1");
 
     let shell = get_shell();
@@ -111,52 +82,33 @@ fn main() {
 
     let mut proj_len = py.len();
     let mut proj_string: String = "".to_string();
-    for (p, c) in projects.into_iter() {
-        match p {
-            "python" => {
-                let (ending, com) = c;
-                if is_proj(&pwd, ending) {
-                    let proj_raw = proj_version(com[0], com[1]);
-                    let proj_split: Vec<_> = proj_raw.trim().split(' ').collect();
-                    if proj_split.len() == 2 {
-                        let pre_ps = format!("🐍{}", proj_split[1]);
-                        proj_len += pre_ps.len();
-                        proj_string =
-                            format!("{proj_string} {} ", color_and_esc(&pre_ps, &shell, blue));
-                    }
-                }
-            }
-            "rust" => {
-                let (ending, com) = c;
-                if is_proj(&pwd, ending) {
-                    let proj_raw = proj_version(com[0], com[1]);
-                    let proj_split: Vec<_> = proj_raw.trim().split(' ').collect();
-                    if proj_split.len() == 4 {
-                        let pre_ps = format!("🦀{}", proj_split[1]);
-                        proj_len += pre_ps.len();
-                        proj_string = format!(
-                            "{proj_string} {} ",
-                            color_and_esc(&pre_ps, &shell, carb_orange)
-                        );
-                    }
-                }
-            }
-            "go" => {
-                let (ending, com) = c;
-                if is_proj(&pwd, ending) {
-                    let proj_raw = proj_version(com[0], com[1]);
-                    let proj_split: Vec<_> = proj_raw.trim().split(' ').collect();
-                    if proj_split.len() == 4 {
-                        let pre_ps = format!("🐿️{}", proj_split[2]);
-                        proj_len += pre_ps.len();
-                        proj_string = format!(
-                            "{proj_string} {} ",
-                            color_and_esc(&pre_ps, &shell, turquoise)
-                        );
-                        emoji_space += 4
-                    }
-                }
-            }
+
+    for ext in is_proj(&pwd, PROJECTS) {
+        match &*ext {
+            "rs" => proj_format(
+                &rust,
+                &mut proj_len,
+                &mut proj_string,
+                &mut emoji_space,
+                &shell,
+                &carb_orange,
+            ),
+            "go" => proj_format(
+                &go,
+                &mut proj_len,
+                &mut proj_string,
+                &mut emoji_space,
+                &shell,
+                &turquoise,
+            ),
+            "py" => proj_format(
+                &python,
+                &mut proj_len,
+                &mut proj_string,
+                &mut emoji_space,
+                &shell,
+                &blue,
+            ),
             _ => {}
         }
     }
