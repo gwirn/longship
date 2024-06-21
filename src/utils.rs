@@ -1,5 +1,12 @@
 use std::env;
 use std::path::Path;
+/// get the current shell
+///
+/// :parameter
+/// * `None`
+///
+/// :return
+/// * `stem`: name of the current shell as per its path or `""`
 pub fn get_shell() -> String {
     let shell_path = get_env_var("SHELL");
     match Path::new(&shell_path).file_stem() {
@@ -10,6 +17,14 @@ pub fn get_shell() -> String {
         None => "".to_string(),
     }
 }
+
+/// get an environment variable
+///
+/// :parameter
+/// * `variable`: the variable to look for
+///
+/// :return
+/// * `p`: the value of the variable or `""`
 pub fn get_env_var(variable: &str) -> String {
     match env::var(variable) {
         Ok(p) => p,
@@ -17,6 +32,13 @@ pub fn get_env_var(variable: &str) -> String {
     }
 }
 
+/// get filename of a given path
+///
+/// :parameter
+/// * `inpath`: the file path to extract from
+///
+/// :return
+/// * `pp`: the file name or `""`
 pub fn get_filename(inpath: String) -> String {
     let path = Path::new(&inpath);
     match path.file_name() {
@@ -28,6 +50,12 @@ pub fn get_filename(inpath: String) -> String {
     }
 }
 
+/// get whether it is a ssh session or not from environment variable
+///
+/// :parameter
+/// * `None`
+/// :return
+/// * (`user`, `ip_en`): the user name and the user name with the last two digits of the IP address
 pub fn get_ssh() -> (String, String) {
     let user = get_env_var("USER");
     let ip_en = match env::var("SSH_CONNECTION") {
@@ -38,7 +66,11 @@ pub fn get_ssh() -> (String, String) {
                     .split('.')
                     .map(|x| x.to_string())
                     .collect::<Vec<String>>();
-                format!(".{}", ip_split[ip_split.len() - 1])
+                if !ip_split.is_empty() {
+                    format!(".{}", ip_split[ip_split.len() - 1])
+                } else {
+                    "".to_string()
+                }
             } else {
                 "".to_string()
             }

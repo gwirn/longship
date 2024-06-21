@@ -3,6 +3,13 @@ use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 
+/// searches for a .git/HEAD file and reads the current branch name if present
+///
+/// :parameter
+/// * None
+///
+/// :return
+/// * `final_name`: name of the git branch or `""`
 pub fn git_branch() -> String {
     // get path of the current directory
     let mut cur_loc = match env::current_dir() {
