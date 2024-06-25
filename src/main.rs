@@ -31,7 +31,7 @@ fn main() {
     // if in /home/USER/... remove that from displayed path
     let path_string = match pwd.strip_prefix(&home) {
         Some(p) => format!("~{}", p),
-        None => "".to_string(),
+        None => (&*pwd.to_string()).into(),
     };
     // width of the terminal
     let size = terminal_size();
