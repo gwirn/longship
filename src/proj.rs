@@ -59,9 +59,14 @@ pub fn get_proj_settings() -> (ProjSetting, ProjSetting, ProjSetting) {
 /// :return
 /// * `found`: all unique file extensions
 pub fn is_proj(pwd: &str, file_ending: &[&str]) -> Vec<String> {
-    let mut found: Vec<String> = Vec::with_capacity(3);
+    let mut proj_found = 0;
+    let proj_to_search = file_ending.len();
+    let mut found: Vec<String> = Vec::with_capacity(proj_to_search);
     if let Ok(files) = fs::read_dir(pwd) {
         for f in files.into_iter() {
+            if proj_found == proj_to_search {
+                break;
+            }
             if let Ok(file_name) = f {
                 if let Some(file_ext) = file_name.path().extension().and_then(|x| x.to_str()) {
                     // is it a extension we are looking for
@@ -69,7 +74,8 @@ pub fn is_proj(pwd: &str, file_ending: &[&str]) -> Vec<String> {
                     let fext = file_ext.to_string();
                     // to avoid duplicates
                     if yes_proj && !found.contains(&fext) {
-                        found.push(fext)
+                        found.push(fext);
+                        proj_found += 1;
                     }
                 }
             }
