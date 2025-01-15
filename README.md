@@ -27,7 +27,7 @@ If in a directory which is in `/home/USER/..` a `~` will be displayed instead.
 »
 ```
 
-If rust, go or python files are present in the current directory they will be indicated
+If rust, go, zig or python files are present in the current directory they will be indicated
 with an indicating emoji and the version of the compiler/ interpreter.
 
 If a python virtual environment is active its name will be displayed even when there are
