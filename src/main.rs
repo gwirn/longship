@@ -66,11 +66,6 @@ fn main() {
 
     // python virutal env names
     let mut py = "".to_string();
-    if !conda.is_empty() {
-        py = get_filename(conda);
-    } else if !venv.is_empty() {
-        py = get_filename(venv);
-    }
 
     // projects are all languages that will be tested whether a file exists and whether
     // to display compiler versions
@@ -81,7 +76,14 @@ fn main() {
             "rs" => proj_format(&rust, &mut proj_len, &mut proj_string, &shell, &CARB_ORANGE),
             "zig" => proj_format(&zig, &mut proj_len, &mut proj_string, &shell, &GOLD1),
             "go" => proj_format(&go, &mut proj_len, &mut proj_string, &shell, &TURQUOISE),
-            "py" => proj_format(&python, &mut proj_len, &mut proj_string, &shell, &BLUE),
+            "py" => {
+                if !conda.is_empty() {
+                    py = get_filename(conda.clone());
+                } else if !venv.is_empty() {
+                    py = get_filename(venv.clone());
+                }
+                proj_format(&python, &mut proj_len, &mut proj_string, &shell, &BLUE)
+            }
             _ => {}
         }
     }
