@@ -9,6 +9,7 @@ pub const GREEN: u8 = 65;
 pub const RED: u8 = 9;
 pub const TURQUOISE: u8 = 45;
 pub const CARB_ORANGE: u8 = 166;
+pub const GOLD1: u8 = 220;
 const ESC_START: char = '\u{1b}';
 const ESC_END_COLOR: char = 'm';
 
@@ -74,7 +75,6 @@ pub fn proj_format(
     settings: &ProjSetting,
     proj_len: &mut usize,
     proj_string: &mut String,
-    emoji_space: &mut usize,
     shell: &str,
     color: &u8,
 ) {
@@ -93,6 +93,5 @@ pub fn proj_format(
         let pre_ps = format!("{}{}", settings.emoji, proj_split[settings.split_idx]);
         *proj_len += pre_ps.len();
         *proj_string = format!("{} {} ", *proj_string, color_and_esc(&pre_ps, shell, color));
-        *emoji_space += settings.emoji_space_add
     }
 }

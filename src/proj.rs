@@ -1,17 +1,29 @@
 use std::fs;
-pub static PROJECTS: &[&str] = &["rs", "go", "py"];
+pub static PROJECTS: &[&str] = &["zig", "rs", "go", "py"];
+
+/// sort one vec basesd on the other in place
+/// :parameter
+/// * `first`: the order giving vec
+/// * `second`: the vec to be sorted
+/// :return
+/// * `None`
+fn sort_based_on_first_vec(first: &[&str], second: &mut Vec<String>) {
+    second.sort_by(|a, b| {
+        let index_a = first.iter().position(|&x| x == *a).unwrap_or(usize::MAX);
+        let index_b = first.iter().position(|&x| x == *b).unwrap_or(usize::MAX);
+        index_a.cmp(&index_b)
+    });
+}
 /// Formatting rules per project
 /// `split_idx`: which part of the split version info is the info
 /// `split_len`: how long the split version info has to be
 /// `emoji`: the emoji to use as indicator
-/// `emoji_space_add`: how much to adjust the padding
 /// `compiler`: command to get the version info
 /// `version_command`: arg to get the version
 pub struct ProjSetting {
     pub split_idx: usize,
     pub split_len: usize,
     pub emoji: String,
-    pub emoji_space_add: usize,
     pub compiler: String,
     pub version_command: String,
 }
@@ -22,20 +34,25 @@ pub struct ProjSetting {
 /// * `None`
 /// :return
 /// * the structs for all projects
-pub fn get_proj_settings() -> (ProjSetting, ProjSetting, ProjSetting) {
+pub fn get_proj_settings() -> (ProjSetting, ProjSetting, ProjSetting, ProjSetting) {
     let python = ProjSetting {
         split_idx: 1,
         split_len: 2,
         emoji: "🐍".to_string(),
-        emoji_space_add: 0,
-        compiler: "python".to_string(),
+        compiler: "python3".to_string(),
         version_command: "--version".to_string(),
+    };
+    let zig: ProjSetting = ProjSetting {
+        split_idx: 0,
+        split_len: 1,
+        emoji: "🐊".to_string(),
+        compiler: "zig".to_string(),
+        version_command: "version".to_string(),
     };
     let rust: ProjSetting = ProjSetting {
         split_idx: 1,
         split_len: 4,
         emoji: "🦀".to_string(),
-        emoji_space_add: 0,
         compiler: "rustc".to_string(),
         version_command: "--version".to_string(),
     };
@@ -43,11 +60,10 @@ pub fn get_proj_settings() -> (ProjSetting, ProjSetting, ProjSetting) {
         split_idx: 2,
         split_len: 4,
         emoji: "🐿️".to_string(),
-        emoji_space_add: 4,
         compiler: "go".to_string(),
         version_command: "version".to_string(),
     };
-    (python, rust, go)
+    (python, zig, rust, go)
 }
 
 /// which project(s) we are dealing with and for which info should be displayed
@@ -80,6 +96,9 @@ pub fn is_proj(pwd: &str, file_ending: &[&str]) -> Vec<String> {
                 }
             }
         }
+    }
+    if found.len() > 1 {
+        sort_based_on_first_vec(&PROJECTS, &mut found);
     }
     found
 }

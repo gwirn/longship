@@ -39,7 +39,7 @@ address in front of the path.
 If in a directory where in its or the parent path a `.git/HEAD` file is present the name
 of the branch will be displayed.
 ```
-🛰 [USER.11]~/Code/rust_projects/longship/src 🌿master         🦀1.75.0  🐿️go1.22.4  🐍3.11.9 python_venv
+🛰 [USER.11]~/Code/rust_projects/longship/src 🌿master 🐊0.13.0  🦀1.82.0  🐿️go1.23.4  🐍3.13.0 python_venv
 »
 ```
 
