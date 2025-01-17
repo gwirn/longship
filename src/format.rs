@@ -19,7 +19,7 @@ const ESC_END_COLOR: char = 'm';
 /// * `instring`: the string to modify
 /// * `shell`: the current shell
 /// * `color`: the number representing the color to be used
-/// :return
+///     :return
 /// * `final_string`: the colored string
 pub fn color_and_esc(instring: &str, shell: &str, color: &u8) -> String {
     // which escape codes to be used based on the shell
@@ -63,7 +63,7 @@ pub fn color_and_esc(instring: &str, shell: &str, color: &u8) -> String {
 /// :parameter
 /// * `settings`: the struct defining all the settings for a given project
 /// * `proj_len`: counter for how long the project string got (to calculate the right amount of
-/// padding)
+///     padding)
 /// * `proj_string`: the string with added up project infromation
 /// * `emoji_space`: how much the padding needs to be adjusted for multi code emojies
 /// * `shell`: the shell currently used

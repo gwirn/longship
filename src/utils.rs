@@ -54,7 +54,7 @@ pub fn get_filename(inpath: String) -> String {
 ///
 /// :parameter
 /// * `None`
-/// :return
+///     :return
 /// * (`user`, `ip_en`): the user name and the user name with the last two digits of the IP address
 pub fn get_ssh() -> (String, String) {
     let user = get_env_var("USER");

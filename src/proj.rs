@@ -5,9 +5,9 @@ pub static PROJECTS: &[&str] = &["zig", "rs", "go", "py"];
 /// :parameter
 /// * `first`: the order giving vec
 /// * `second`: the vec to be sorted
-/// :return
+///     :return
 /// * `None`
-fn sort_based_on_first_vec(first: &[&str], second: &mut Vec<String>) {
+fn sort_based_on_first_vec(first: &[&str], second: &mut [String]) {
     second.sort_by(|a, b| {
         let index_a = first.iter().position(|&x| x == *a).unwrap_or(usize::MAX);
         let index_b = first.iter().position(|&x| x == *b).unwrap_or(usize::MAX);
@@ -32,7 +32,7 @@ pub struct ProjSetting {
 ///
 /// :parameter
 /// * `None`
-/// :return
+///     :return
 /// * the structs for all projects
 pub fn get_proj_settings() -> (ProjSetting, ProjSetting, ProjSetting, ProjSetting) {
     let python = ProjSetting {
@@ -98,7 +98,7 @@ pub fn is_proj(pwd: &str, file_ending: &[&str]) -> Vec<String> {
         }
     }
     if found.len() > 1 {
-        sort_based_on_first_vec(&PROJECTS, &mut found);
+        sort_based_on_first_vec(PROJECTS, &mut found);
     }
     found
 }
