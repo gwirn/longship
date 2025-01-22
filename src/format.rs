@@ -71,13 +71,7 @@ pub fn color_and_esc(instring: &str, shell: &str, color: &u8) -> String {
 ///
 /// :return
 /// * `None`
-pub fn proj_format(
-    settings: &ProjSetting,
-    proj_len: &mut usize,
-    proj_string: &mut String,
-    shell: &str,
-    color: &u8,
-) {
+pub fn proj_format(settings: &ProjSetting, shell: &str, color: &u8) -> Option<String> {
     let proj_raw = match Command::new(&settings.compiler)
         .arg(&settings.version_command)
         .output()
@@ -90,8 +84,9 @@ pub fn proj_format(
     };
     let proj_split: Vec<_> = proj_raw.trim().split(' ').collect();
     if proj_split.len() == settings.split_len {
-        let pre_ps = format!("{}{}", settings.emoji, proj_split[settings.split_idx]);
-        *proj_len += pre_ps.len();
-        *proj_string = format!("{} {} ", *proj_string, color_and_esc(&pre_ps, shell, color));
+        let pre_ps = format!("{} {}", settings.emoji, proj_split[settings.split_idx]);
+        Some(color_and_esc(&pre_ps, shell, color))
+    } else {
+        None
     }
 }

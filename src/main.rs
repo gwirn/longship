@@ -1,6 +1,7 @@
 use file_search::*;
 use format::*;
 use proj::*;
+use rayon::prelude::*;
 use std::env;
 use utils::*;
 
@@ -29,22 +30,20 @@ fn main() {
     // if in /home/USER/... remove that from displayed path
     let path_string = match pwd.strip_prefix(&home) {
         Some(p) => format!("~{}", p),
-        None => (&*pwd.to_string()).into(),
+        None => pwd.as_str().to_string(),
     };
 
-    // how much space for padding needs to be added due to emojis being composed of
-    // two unicode characters
     // get current git branch name
     let mut git_info = git_branch();
     if !git_info.is_empty() {
-        git_info = format!("🌿{}", git_info);
+        git_info = format!("{} {}", HERB, git_info);
     }
     // whether on a remote session and if so get user.lastipdigits
     let (user, mut ssh_string) = get_ssh();
     // whether one is logged in as root
     let mut is_root = user.to_lowercase() == "root";
     if !ssh_string.is_empty() {
-        ssh_string = format!("{} [{}]", "🛰️", ssh_string);
+        ssh_string = format!("{} [{}]", SATELITE, ssh_string);
     } else if !user.is_empty() {
         ssh_string = "[ROOT]".to_string();
         is_root = true;
@@ -64,36 +63,45 @@ fn main() {
         color_and_esc(&git_info, &shell, &GREY),
     );
 
-    // python virutal env names
-    let mut py = "".to_string();
-
     // projects are all languages that will be tested whether a file exists and whether
     // to display compiler versions
-    let mut proj_len = py.len();
-    let mut proj_string: String = "".to_string();
-    for ext in is_proj(&pwd, PROJECTS) {
-        match &*ext {
-            "rs" => proj_format(&rust, &mut proj_len, &mut proj_string, &shell, &CARB_ORANGE),
-            "zig" => proj_format(&zig, &mut proj_len, &mut proj_string, &shell, &GOLD1),
-            "go" => proj_format(&go, &mut proj_len, &mut proj_string, &shell, &TURQUOISE),
+    let pre_proj_string: Vec<_> = is_proj(&pwd, PROJECTS)
+        .par_iter()
+        .map(|ext| match ext.as_str() {
+            "rs" => match proj_format(&rust, &shell, &CARB_ORANGE) {
+                Some(v) => v,
+                None => "".to_owned(),
+            },
+            "zig" => match proj_format(&zig, &shell, &GOLD1) {
+                Some(v) => v,
+                None => "".to_owned(),
+            },
+            "go" => match proj_format(&go, &shell, &TURQUOISE) {
+                Some(v) => v,
+                None => "".to_owned(),
+            },
             "py" => {
+                // python virutal env names
+                let mut py = "".to_string();
                 if !conda.is_empty() {
                     py = get_filename(conda.clone());
                 } else if !venv.is_empty() {
                     py = get_filename(venv.clone());
                 }
-                proj_format(&python, &mut proj_len, &mut proj_string, &shell, &BLUE)
+                match proj_format(&python, &shell, &BLUE) {
+                    Some(v) => format!("{} {}", v, color_and_esc(&py, &shell, &BLUE)),
+                    None => "".to_owned(),
+                }
             }
-            _ => {}
-        }
-    }
-
+            _ => "".to_owned(),
+        })
+        .collect();
+    let proj_string = pre_proj_string.join(" ");
     // final construction of the prompt
     path = format!(
-        "{}{}{}\n{}",
+        "{} {}\n{}",
         path,
         proj_string,
-        color_and_esc(&py, &shell, &BLUE),
         color_and_esc("»", &shell, &ORANGE)
     );
     println!("\r{} ", path);

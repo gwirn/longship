@@ -1,3 +1,4 @@
+use crate::utils::{CHIPMUNK, CRAB, CROCODILE, SNAKE};
 use std::fs;
 pub static PROJECTS: &[&str] = &["zig", "rs", "go", "py"];
 
@@ -23,7 +24,7 @@ fn sort_based_on_first_vec(first: &[&str], second: &mut [String]) {
 pub struct ProjSetting {
     pub split_idx: usize,
     pub split_len: usize,
-    pub emoji: String,
+    pub emoji: char,
     pub compiler: String,
     pub version_command: String,
 }
@@ -38,28 +39,28 @@ pub fn get_proj_settings() -> (ProjSetting, ProjSetting, ProjSetting, ProjSettin
     let python = ProjSetting {
         split_idx: 1,
         split_len: 2,
-        emoji: "🐍".to_string(),
+        emoji: SNAKE,
         compiler: "python3".to_string(),
         version_command: "--version".to_string(),
     };
     let zig: ProjSetting = ProjSetting {
         split_idx: 0,
         split_len: 1,
-        emoji: "🐊".to_string(),
+        emoji: CROCODILE,
         compiler: "zig".to_string(),
         version_command: "version".to_string(),
     };
     let rust: ProjSetting = ProjSetting {
         split_idx: 1,
         split_len: 4,
-        emoji: "🦀".to_string(),
+        emoji: CRAB,
         compiler: "rustc".to_string(),
         version_command: "--version".to_string(),
     };
     let go: ProjSetting = ProjSetting {
         split_idx: 2,
         split_len: 4,
-        emoji: "🐿️".to_string(),
+        emoji: CHIPMUNK,
         compiler: "go".to_string(),
         version_command: "version".to_string(),
     };

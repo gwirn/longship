@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 nu-ansi-term = "0.49"
+rayon = "1.10.0"

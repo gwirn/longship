@@ -1,5 +1,13 @@
 use std::env;
 use std::path::Path;
+
+pub const SATELITE: char = '\u{1F6F0}';
+pub const HERB: char = '\u{1F33F}';
+pub const SNAKE: char = '\u{1F40D}';
+pub const CRAB: char = '\u{1F980}';
+pub const CROCODILE: char = '\u{1F40A}';
+pub const CHIPMUNK: char = '\u{1F43F}';
+
 /// get the current shell
 ///
 /// :parameter
