@@ -5,7 +5,7 @@ pub const SATELITE: char = '\u{1F6F0}';
 pub const HERB: char = '\u{1F33F}';
 pub const SNAKE: char = '\u{1F40D}';
 pub const CRAB: char = '\u{1F980}';
-pub const CROCODILE: char = '\u{1F40A}';
+pub const VOLTAGE: char = '\u{26A1}';
 pub const CHIPMUNK: char = '\u{1F43F}';
 
 /// get the current shell

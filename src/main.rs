@@ -65,38 +65,42 @@ fn main() {
 
     // projects are all languages that will be tested whether a file exists and whether
     // to display compiler versions
-    let pre_proj_string: Vec<_> = is_proj(&pwd, PROJECTS)
-        .par_iter()
-        .map(|ext| match ext.as_str() {
-            "rs" => match proj_format(&rust, &shell, &CARB_ORANGE) {
-                Some(v) => v,
-                None => "".to_owned(),
-            },
-            "zig" => match proj_format(&zig, &shell, &GOLD1) {
-                Some(v) => v,
-                None => "".to_owned(),
-            },
-            "go" => match proj_format(&go, &shell, &TURQUOISE) {
-                Some(v) => v,
-                None => "".to_owned(),
-            },
-            "py" => {
-                // python virutal env names
-                let mut py = "".to_string();
-                if !conda.is_empty() {
-                    py = get_filename(conda.clone());
-                } else if !venv.is_empty() {
-                    py = get_filename(venv.clone());
-                }
-                match proj_format(&python, &shell, &BLUE) {
-                    Some(v) => format!("{} {}", v, color_and_esc(&py, &shell, &BLUE)),
-                    None => "".to_owned(),
-                }
-            }
-            _ => "".to_owned(),
-        })
-        .collect();
-    let proj_string = pre_proj_string.join(" ");
+    let proj_string = match is_proj(&pwd, PROJECTS) {
+        Some(v) => {
+            v.par_iter()
+                .map(|ext| match ext.as_str() {
+                    "rs" => match proj_format(&rust, &shell, &CARB_ORANGE) {
+                        Some(v) => v,
+                        None => "".to_owned(),
+                    },
+                    "zig" => match proj_format(&zig, &shell, &GOLD1) {
+                        Some(v) => v,
+                        None => "".to_owned(),
+                    },
+                    "go" => match proj_format(&go, &shell, &TURQUOISE) {
+                        Some(v) => v,
+                        None => "".to_owned(),
+                    },
+                    "py" => {
+                        // python virutal env names
+                        let mut py = "".to_string();
+                        if !conda.is_empty() {
+                            py = get_filename(conda.clone());
+                        } else if !venv.is_empty() {
+                            py = get_filename(venv.clone());
+                        }
+                        match proj_format(&python, &shell, &BLUE) {
+                            Some(v) => format!("{} {}", v, color_and_esc(&py, &shell, &BLUE)),
+                            None => "".to_owned(),
+                        }
+                    }
+                    _ => "".to_owned(),
+                })
+                .collect::<Vec<_>>()
+                .join(" ")
+        }
+        None => "".to_string(),
+    };
     // final construction of the prompt
     path = format!(
         "{} {}\n{}",

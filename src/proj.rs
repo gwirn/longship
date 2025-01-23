@@ -1,5 +1,6 @@
-use crate::utils::{CHIPMUNK, CRAB, CROCODILE, SNAKE};
-use std::fs;
+use crate::utils::{CHIPMUNK, CRAB, SNAKE, VOLTAGE};
+use std::{collections::HashSet, fs};
+
 pub static PROJECTS: &[&str] = &["zig", "rs", "go", "py"];
 
 /// sort one vec basesd on the other in place
@@ -46,7 +47,7 @@ pub fn get_proj_settings() -> (ProjSetting, ProjSetting, ProjSetting, ProjSettin
     let zig: ProjSetting = ProjSetting {
         split_idx: 0,
         split_len: 1,
-        emoji: CROCODILE,
+        emoji: VOLTAGE,
         compiler: "zig".to_string(),
         version_command: "version".to_string(),
     };
@@ -75,31 +76,25 @@ pub fn get_proj_settings() -> (ProjSetting, ProjSetting, ProjSetting, ProjSettin
 ///
 /// :return
 /// * `found`: all unique file extensions
-pub fn is_proj(pwd: &str, file_ending: &[&str]) -> Vec<String> {
-    let mut proj_found = 0;
-    let proj_to_search = file_ending.len();
-    let mut found: Vec<String> = Vec::with_capacity(proj_to_search);
-    if let Ok(files) = fs::read_dir(pwd) {
-        for f in files.into_iter() {
-            if proj_found == proj_to_search {
-                break;
-            }
-            if let Ok(file_name) = f {
-                if let Some(file_ext) = file_name.path().extension().and_then(|x| x.to_str()) {
-                    // is it a extension we are looking for
-                    let yes_proj = file_ending.contains(&file_ext);
-                    let fext = file_ext.to_string();
-                    // to avoid duplicates
-                    if yes_proj && !found.contains(&fext) {
-                        found.push(fext);
-                        proj_found += 1;
-                    }
-                }
-            }
-        }
-    }
-    if found.len() > 1 {
+pub fn is_proj(pwd: &str, file_ending: &[&str]) -> Option<Vec<String>> {
+    if let Ok(paths) = fs::read_dir(pwd) {
+        let avail_paths = paths
+            .filter_map(|x| {
+                x.ok().and_then(|e| {
+                    e.path()
+                        .extension()
+                        .and_then(|z| z.to_str().map(String::from))
+                })
+            })
+            .collect::<HashSet<String>>();
+        let mut found = file_ending
+            .iter()
+            .filter(|x| avail_paths.contains(**x))
+            .map(|x| String::from(*x))
+            .collect::<Vec<String>>();
         sort_based_on_first_vec(PROJECTS, &mut found);
+        Some(found.to_vec())
+    } else {
+        None
     }
-    found
 }

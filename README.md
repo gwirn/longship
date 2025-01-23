@@ -48,4 +48,4 @@ modified your shell with without any changes.
 
 ## Inspiration
 This is heavily inspired by [starship](https://github.com/starship/starship/tree/master) which is a much more powerful and versatile
-prompt.
+prompt but needs to be used with `eval`.
