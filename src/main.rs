@@ -29,8 +29,12 @@ fn main() {
 
     // if in /home/USER/... remove that from displayed path
     let path_string = match pwd.strip_prefix(&home) {
-        Some(p) => format!("~{}", p),
-        None => pwd.as_str().to_string(),
+        Some(p) => {
+            let mut ps = p.to_owned();
+            ps.insert_str(0, "~");
+            ps
+        }
+        None => pwd.clone(),
     };
 
     // get current git branch name
@@ -50,7 +54,7 @@ fn main() {
     }
 
     // construct left side of prompt
-    let mut path = format!(
+    let path = format!(
         "{}{} {}",
         color_and_esc(&ssh_string, &shell, {
             if is_root {
@@ -90,7 +94,10 @@ fn main() {
                             py = get_filename(venv.clone());
                         }
                         match proj_format(&python, &shell, &BLUE) {
-                            Some(v) => format!("{} {}", v, color_and_esc(&py, &shell, &BLUE)),
+                            Some(mut v) => {
+                                v.push_str(color_and_esc(&py, &shell, &BLUE).as_str());
+                                v
+                            }
                             None => "".to_owned(),
                         }
                     }
@@ -101,12 +108,37 @@ fn main() {
         }
         None => "".to_string(),
     };
+    let exec_time = command_time("LONGSHIP_TIME_STAMP", 2);
+    let exec_ret = command_retun("LONGSHIP_RET_CODE");
+    let mut exec_string: String = "".to_string();
+    if let Some((h, m, s)) = exec_time {
+        if let Some(e_r) = exec_ret {
+            let mut ret_color = GREEN;
+            if !e_r {
+                ret_color = RED
+            }
+            let mut time_str = "".to_string();
+            if s > 0 {
+                time_str = format!("{}s", s)
+            }
+            if m > 0 {
+                time_str = format!("{}m{}", m, time_str)
+            }
+            if h > 0 {
+                time_str = format!("{}h{}", h, time_str)
+            }
+            exec_string = color_and_esc(&time_str, &shell, &ret_color);
+        }
+    }
+
     // final construction of the prompt
-    path = format!(
-        "{} {}\n{}",
+    let prompt = format!(
+        "{} {} {}\n{}",
         path,
         proj_string,
+        exec_string,
         color_and_esc("»", &shell, &ORANGE)
     );
-    println!("\r{} ", path);
+
+    println!("\r{} ", prompt);
 }
