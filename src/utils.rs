@@ -118,28 +118,28 @@ pub fn command_time(time_key: &str, threshold: u64) -> Option<(u64, u64, u64)> {
                         let hours = (time_diff / 3600) % 24;
                         let minutes = (time_diff / 60) % 60;
                         let seconds = time_diff % 60;
-                        return Some((hours, minutes, seconds));
+                        Some((hours, minutes, seconds))
                     } else {
-                        return None;
+                        None
                     }
                 } else {
-                    return None;
+                    None
                 }
             }
-            Err(_) => return None,
+            Err(_) => None,
         },
-        Err(_) => return None,
-    };
+        Err(_) => None,
+    }
 }
 
 pub fn command_retun(cmd_key: &str) -> Option<bool> {
     match env::var(cmd_key) {
         Ok(c) => match c.as_str() {
-            "0" => return Some(true),
-            _ => return Some(false),
+            "0" => Some(true),
+            _ => Some(false),
         },
-        Err(_) => return None,
-    };
+        Err(_) => None,
+    }
 }
 
 pub fn _screensize() -> Option<(usize, usize)> {
@@ -159,39 +159,35 @@ pub fn _screensize() -> Option<(usize, usize)> {
             .output()
     };
     match size_out {
-        Ok(s_str) => {
-            match String::from_utf8(s_str.stdout) {
-                Ok(v) => {
-                    let mut data = v.split_whitespace();
-                    let rows = match usize::from_str_radix(
-                        {
-                            match data.next() {
-                                Some(r) => r,
-                                None => return None,
-                            }
-                        },
-                        10,
-                    ) {
-                        Ok(rv) => rv,
-                        Err(_) => return None,
-                    };
-                    let cols = match usize::from_str_radix(
-                        {
-                            match data.next() {
-                                Some(r) => r,
-                                None => return None,
-                            }
-                        },
-                        10,
-                    ) {
-                        Ok(rv) => rv,
-                        Err(_) => return None,
-                    };
-                    return Some((rows, cols));
+        Ok(s_str) => match String::from_utf8(s_str.stdout) {
+            Ok(v) => {
+                let mut data = v.split_whitespace();
+                let rows = match {
+                    match data.next() {
+                        Some(r) => r,
+                        None => return None,
+                    }
                 }
-                Err(_) => return None,
-            };
-        }
+                .parse::<usize>()
+                {
+                    Ok(rv) => rv,
+                    Err(_) => return None,
+                };
+                let cols = match {
+                    match data.next() {
+                        Some(r) => r,
+                        None => return None,
+                    }
+                }
+                .parse::<usize>()
+                {
+                    Ok(rv) => rv,
+                    Err(_) => return None,
+                };
+                Some((rows, cols))
+            }
+            Err(_) => None,
+        },
         Err(_) => None,
     }
 }

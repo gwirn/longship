@@ -31,7 +31,7 @@ fn main() {
     let path_string = match pwd.strip_prefix(&home) {
         Some(p) => {
             let mut ps = p.to_owned();
-            ps.insert_str(0, "~");
+            ps.insert(0, '~');
             ps
         }
         None => pwd.clone(),
@@ -95,6 +95,7 @@ fn main() {
                         }
                         match proj_format(&python, &shell, &BLUE) {
                             Some(mut v) => {
+                                v.push(' ');
                                 v.push_str(color_and_esc(&py, &shell, &BLUE).as_str());
                                 v
                             }
