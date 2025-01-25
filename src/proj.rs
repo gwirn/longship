@@ -1,3 +1,5 @@
+use rayon::prelude::*;
+
 use crate::utils::{CHIPMUNK, CRAB, SNAKE, VOLTAGE};
 use std::{collections::HashSet, fs};
 
@@ -88,7 +90,7 @@ pub fn is_proj(pwd: &str, file_ending: &[&str]) -> Option<Vec<String>> {
             })
             .collect::<HashSet<String>>();
         let mut found = file_ending
-            .iter()
+            .par_iter()
             .filter(|x| avail_paths.contains(**x))
             .map(|x| String::from(*x))
             .collect::<Vec<String>>();

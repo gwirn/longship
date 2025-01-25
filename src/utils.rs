@@ -11,6 +11,8 @@ pub const SNAKE: char = '\u{1F40D}';
 pub const CRAB: char = '\u{1F980}';
 pub const VOLTAGE: char = '\u{26A1}';
 pub const CHIPMUNK: char = '\u{1F43F}';
+pub const CHECKMARK: char = '\u{2714}';
+pub const CROSSMARK: char = '\u{274C}';
 
 /// get the current shell
 ///

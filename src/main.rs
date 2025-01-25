@@ -114,8 +114,10 @@ fn main() {
     if let Some((h, m, s)) = exec_time {
         if let Some(e_r) = exec_ret {
             let mut ret_color = GREEN;
+            let mut ret_mark = CHECKMARK;
             if !e_r {
-                ret_color = RED
+                ret_color = RED;
+                ret_mark = CROSSMARK;
             }
             let mut time_str = "".to_string();
             if s > 0 {
@@ -127,6 +129,9 @@ fn main() {
             if h > 0 {
                 time_str = format!("{}h{}", h, time_str)
             }
+            let mut mark_buf: [u8; 4] = [0; 4];
+            let mark_str: &str = ret_mark.encode_utf8(&mut mark_buf);
+            time_str.insert_str(0, mark_str);
             exec_string = color_and_esc(&time_str, &shell, &ret_color);
         }
     }
