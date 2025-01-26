@@ -55,10 +55,18 @@ preexec() {
     LONGSHIP_TIME_STAMP=$(date +%s)
     export LONGSHIP_TIME_STAMP
 }
+
 # This will run after the execution of the previous full command line.
 precmd() {
     LONGSHIP_RET_CODE=$?
     export LONGSHIP_RET_CODE
+    PREV_CMD=$BUFFER
+}
+# So no time is displayed on an empty command
+zle-line-finish() {
+    if [[ -z "$PREV_CMD" ]]; then
+        unset LONGSHIP_TIME_STAMP
+    fi
 }
 ```
 *bash* [source](https://jichu4n.com/posts/debug-trap-and-prompt_command-in-bash/)
