@@ -69,21 +69,21 @@ fn main() {
 
     // projects are all languages that will be tested whether a file exists and whether
     // to display compiler versions
-    let proj_string = match is_proj(&pwd, PROJECTS) {
+    let (n_proj_raw, proj_string_raw): (Vec<_>, Vec<_>) = match is_proj(&pwd, PROJECTS) {
         Some(v) => {
             v.par_iter()
                 .map(|ext| match ext.as_str() {
                     "rs" => match proj_format(&rust, &shell, &CARB_ORANGE) {
-                        Some(v) => v,
-                        None => "".to_owned(),
+                        Some(v) => (2, v),
+                        None => (0, "".to_owned()),
                     },
                     "zig" => match proj_format(&zig, &shell, &GOLD1) {
-                        Some(v) => v,
-                        None => "".to_owned(),
+                        Some(v) => (0, v),
+                        None => (0, "".to_owned()),
                     },
                     "go" => match proj_format(&go, &shell, &TURQUOISE) {
-                        Some(v) => v,
-                        None => "".to_owned(),
+                        Some(v) => (2, v),
+                        None => (0, "".to_owned()),
                     },
                     "py" => {
                         // python virutal env names
@@ -97,18 +97,18 @@ fn main() {
                             Some(mut v) => {
                                 v.push(' ');
                                 v.push_str(color_and_esc(&py, &shell, &BLUE).as_str());
-                                v
+                                (2, v)
                             }
-                            None => "".to_owned(),
+                            None => (0, "".to_owned()),
                         }
                     }
-                    _ => "".to_owned(),
+                    _ => (0, "".to_owned()),
                 })
-                .collect::<Vec<_>>()
-                .join(" ")
+                .collect()
         }
-        None => "".to_string(),
+        None => (vec![0], vec!["".to_string()]),
     };
+    let proj_string = proj_string_raw.join(" ");
     let exec_time = command_time("LONGSHIP_TIME_STAMP", 2);
     let exec_ret = command_retun("LONGSHIP_RET_CODE");
     let mut exec_string: String = "".to_string();
@@ -136,12 +136,37 @@ fn main() {
             exec_string = color_and_esc(&time_str, &shell, &ret_color);
         }
     }
+    let mut padding = "".to_string();
+    if exec_string.len() > 0 {
+        padding = match screensize() {
+            Some((_, x)) => match gen_re() {
+                Ok((ansi_re, unicode_re, all_unicode_re)) => {
+                    let prompt_len = raw_len(&path, &ansi_re, &unicode_re)
+                        + 2
+                        + raw_len(&proj_string, &ansi_re, &unicode_re)
+                        - raw_len(&proj_string, &ansi_re, &all_unicode_re)
+                        + n_proj_raw.iter().sum::<usize>();
+                    let padding_size = {
+                        if prompt_len > x {
+                            1
+                        } else {
+                            x - prompt_len - raw_len(&exec_string, &ansi_re, &unicode_re)
+                        }
+                    };
+                    vec![" "; padding_size].join("")
+                }
+                Err(_) => " ".to_string(),
+            },
+            None => " ".to_string(),
+        };
+    }
 
     // final construction of the prompt
     let prompt = format!(
-        "{} {} {}\n{}",
+        "{} {}{}{}\n{}",
         path,
         proj_string,
+        padding,
         exec_string,
         color_and_esc("»", &shell, &ORANGE)
     );

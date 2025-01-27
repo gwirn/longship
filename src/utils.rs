@@ -1,3 +1,4 @@
+use regex::Regex;
 use std::{
     env,
     path::Path,
@@ -12,7 +13,7 @@ pub const CRAB: char = '\u{1F980}';
 pub const VOLTAGE: char = '\u{26A1}';
 pub const CHIPMUNK: char = '\u{1F43F}';
 pub const CHECKMARK: char = '\u{2714}';
-pub const CROSSMARK: char = '\u{274C}';
+pub const CROSSMARK: char = '\u{0078}';
 
 /// get the current shell
 ///
@@ -142,7 +143,19 @@ pub fn command_retun(cmd_key: &str) -> Option<bool> {
     }
 }
 
-pub fn _screensize() -> Option<(usize, usize)> {
+pub fn gen_re() -> Result<(Regex, Regex, Regex), Box<dyn std::error::Error>> {
+    let ansi_re = Regex::new(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")?;
+    let unicode_re = Regex::new(r"[\u{0}-\u{2}]")?;
+    let all_unicode_re = Regex::new(r"[\u{0}-\u{10000}]")?;
+    Ok((ansi_re, unicode_re, all_unicode_re))
+}
+pub fn raw_len(prompt: &str, ansi_re: &Regex, unicode_re: &Regex) -> usize {
+    let no_ansi_prompt = ansi_re.replace_all(&prompt, "").to_owned();
+    let no_unicode_prompt = unicode_re.replace_all(&no_ansi_prompt, "");
+    no_unicode_prompt.chars().count()
+}
+
+pub fn screensize() -> Option<(usize, usize)> {
     let size_out = if cfg!(target_os = "linux") {
         Command::new("stty")
             .arg("size")
