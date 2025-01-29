@@ -22,6 +22,8 @@ Run `cargo build --release` to create a binary of the program.
 
 If in a directory which is in `/home/USER/..` a `~` will be displayed instead.
 
+If the current working directory is a symlink a 🔗 will be displayed after the file path. This relies on the shell exposing the `PWD` variable. Otherwise it will show the working directory as followed from the symlink.
+
 If rust, go, zig or python files are present in the current directory they will be indicated
 with an indicating emoji and the version of the compiler/ interpreter.
 

@@ -2,7 +2,7 @@ use file_search::*;
 use format::*;
 use proj::*;
 use rayon::prelude::*;
-use std::env;
+use std::{env, fs};
 use utils::*;
 
 mod file_search;
@@ -21,10 +21,30 @@ fn main() {
     let conda = get_env_var("CONDA_PREFIX");
     let venv = get_env_var("VIRTUAL_ENV");
 
-    // path current working dir
-    let pwd = match env::current_dir() {
-        Ok(path) => path.to_str().unwrap_or_default().to_string(),
-        Err(_) => String::new(),
+    let pwd = match env::var("PWD") {
+        Ok(mut pwd_shell) => {
+            // check if dir is a symlink
+            let md = fs::symlink_metadata(pwd_shell.clone());
+            if let Ok(meta_d) = md {
+                if meta_d.file_type().is_symlink() {
+                    pwd_shell.push(' ');
+                    pwd_shell.push(LINK);
+                    pwd_shell
+                } else {
+                    pwd_shell
+                }
+            } else {
+                pwd_shell
+            }
+        }
+        Err(_) => {
+            // path current working dir
+            let cpath = match env::current_dir() {
+                Ok(path) => path.to_str().unwrap_or_default().to_string(),
+                Err(_) => String::new(),
+            };
+            cpath
+        }
     };
 
     // if in /home/USER/... remove that from displayed path
