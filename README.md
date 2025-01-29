@@ -2,6 +2,8 @@
 
 ***Makes your command line prompt more informative without being intrusive.***
 
+![TEST](https://github.com/gwirn/longship/actions/workflows/rust.yml/badge.svg)
+[![License: GPL v2](https://img.shields.io/badge/License-GPL_v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
 Simple replace your current `PS1` with the path to the longship executable.
 **No need for any elevated privileges.**
