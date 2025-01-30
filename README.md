@@ -5,7 +5,7 @@
 ![TEST](https://github.com/gwirn/longship/actions/workflows/rust.yml/badge.svg)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL_v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
-Simple replace your current `PS1` with the path to the longship executable.
+Simply replace your current `PS1` with the path to the longship executable.
 **No need for any elevated privileges.**
 Aims to improve your prompt without interfering with any other plugin or tool you have installed for your terminal by just altering the `PS1`.
 So you can still use all your desired command completions and all other features you modified your shell with without any changes.
@@ -18,27 +18,27 @@ Run `cargo build --release` to create a binary of the program.
 
 ## Example
 ```
-🛰 [USER.11]~/Code/rust_projects/longship/src 🌿master ⚡ 0.13.0  🦀1.82.0  🐿️go1.23.4  🐍3.13.0 python_venv ✔/❌3s
+🛰 [USER.11]~/Code/rust_projects/longship/src 🌿master ⚡ 0.13.0  🦀1.82.0  🐿️go1.23.4  🐍3.13.0 python_venv ✔/x3s
 »
 ```
 
-If in a directory which is in `/home/USER/..` a `~` will be displayed instead.
+If in a directory which is in `$HOME` a `~` will be displayed instead.
 
-If the current working directory is a symlink a 🔗 will be displayed after the file path. This relies on the shell exposing the `PWD` variable. Otherwise it will show the working directory as followed from the symlink.
+If the current working directory is a symlink a `🔗` will be displayed after the file path. This relies on the shell exposing the `PWD` variable. Otherwise it will show the working directory as followed from the symlink.
 
-If rust, go, zig or python files are present in the current directory they will be indicated
+If rust `🦀`, go `🐿️`, zig `⚡` or python `🐍` files are present in the current directory they will be indicated
 with an indicating emoji and the version of the compiler/ interpreter.
 
 If a python virtual environment is active its name will be displayed even when there are
 no python files.
 
 If it is a remote session it is indicated with the user name, the last part of the IP
-address in front of the path and a satellite emoji.
+address in front of the path and a satellite emoji `🛰`.
 
 If in a directory where in its or the parent path a `.git/HEAD` file is present the name
-of the branch will be displayed.
+of the branch will be displayed as well as the herb emoji `🌿`.
 
-If your previous command ran longer than 2 seconds the command execution time will be shown at the end of the prompt with second precission. If the command exited successful, it will be indicated in green including a leading check mark, otherwise in red with a leading cross.
+If your previous command ran longer than 2 seconds the command execution time will be shown at the end of the prompt with second precission. If the command exited successful, it will be indicated in green including a leading check mark `✔`, otherwise in red with a leading cross `x`.
 
 ## Configuration
 *zsh*
