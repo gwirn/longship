@@ -1,8 +1,8 @@
 name: Build and Publish Rust Binaries
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [ "master" ]
 
 jobs:
   build-linux:
