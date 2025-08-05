@@ -21,13 +21,6 @@ jobs:
         run: mv target/release/longship longship-linux-amd64
       - name: Generate SHA256
         run: sha256sum longship-linux-amd64 > longship-linux-amd64.sha256
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: longship-linux-amd64
-          path: |
-            longship-linux-amd64
-            longship-linux-amd64.sha256
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         with:
@@ -53,13 +46,6 @@ jobs:
         run: mv target/release/longship longship-macos-amd64
       - name: Generate SHA256
         run: shasum -a 256 longship-macos-amd64 > longship-macos-amd64.sha256
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: longship-macos-amd64
-          path: |
-            longship-macos-amd64
-            longship-macos-amd64.sha256
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         with:
