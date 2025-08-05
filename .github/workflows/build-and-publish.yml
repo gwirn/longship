@@ -1,0 +1,70 @@
+name: Build and Publish Rust Binaries
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+      - name: Build binary
+        run: cargo build --release
+      - name: Rename binary
+        run: mv target/release/longship longship-linux-amd64
+      - name: Generate SHA256
+        run: sha256sum longship-linux-amd64 > longship-linux-amd64.sha256
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: longship-linux-amd64
+          path: |
+            longship-linux-amd64
+            longship-linux-amd64.sha256
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            longship-linux-amd64
+            longship-linux-amd64.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+      - name: Build binary
+        run: cargo build --release
+      - name: Rename binary
+        run: mv target/release/longship longship-macos-amd64
+      - name: Generate SHA256
+        run: shasum -a 256 longship-macos-amd64 > longship-macos-amd64.sha256
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: longship-macos-amd64
+          path: |
+            longship-macos-amd64
+            longship-macos-amd64.sha256
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            longship-macos-amd64
+            longship-macos-amd64.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
