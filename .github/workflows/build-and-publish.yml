@@ -2,8 +2,8 @@ name: Build and Publish Rust Binaries
 
 on:
   push:
-    branches: [ "master" ]
-
+    tags:
+      - '*'
 jobs:
   build-linux:
     runs-on: ubuntu-latest
@@ -24,6 +24,7 @@ jobs:
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_name }}
           files: |
             longship-linux-amd64
             longship-linux-amd64.sha256
@@ -49,6 +50,7 @@ jobs:
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_name }}
           files: |
             longship-macos-amd64
             longship-macos-amd64.sha256
