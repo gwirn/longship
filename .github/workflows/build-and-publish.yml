@@ -3,11 +3,11 @@ name: Release
 on:
   push:
     tags:
-      - 'v*.*.*'  # Triggers on version tags like v1.0.0
+      - 'v*.*.*'  # Run workflow on version tags like v1.0.0
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
@@ -25,47 +25,22 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          target: ${{ matrix.target }}
           override: true
+          target: ${{ matrix.target }}
 
       - name: Build release binary
-        run: cargo build --release --target ${{ matrix.target }}
-
-      - name: Prepare binary archive
         run: |
-          mkdir -p dist
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            cargo build --release --target ${{ matrix.target }}
+            BIN_PATH=target/${{ matrix.target }}/release
+          else
+            cargo build --release
+            BIN_PATH=target/release
+          fi
+
           BIN_NAME=$(basename $(pwd))
-          cp target/${{ matrix.target }}/release/$BIN_NAME dist/${BIN_NAME}-${{ matrix.target }}
-          tar -czvf ${BIN_NAME}-${{ matrix.target }}.tar.gz -C dist ${BIN_NAME}-${{ matrix.target }}
-          sha256sum ${BIN_NAME}-${{ matrix.target }}.tar.gz > ${BIN_NAME}-${{ matrix.target }}.tar.gz.sha256
+          mkdir -p dist
+          cp $BIN_PATH/$BIN_NAME dist/${BIN_NAME}-${{ matrix.target }}
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.target }}-artifacts
-          path: |
-            *.tar.gz
-            *.tar.gz.sha256
-
-  release:
-    name: Upload Release Assets
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: Prepare release assets
+      - name: Package and checksum
         run: |
-          mkdir release
-          find artifacts -type f -name "*.tar.gz" -exec cp {} release/ \;
-          find artifacts -type f -name "*.sha256" -exec cp {} release/ \;
-
-      - name: Upload to GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: release/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
