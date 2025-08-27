@@ -50,33 +50,32 @@ jobs:
           name: ${{ matrix.target }}
           path: dist/
 
-release:
-  name: Upload to GitHub Release
-  needs: build
-  runs-on: ubuntu-latest
+  release:
+    name: Upload to GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
 
-  steps:
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
 
-    - name: Copy release files
-      run: |
-        mkdir release
+      - name: Copy release files
+        run: |
+          mkdir release
 
-        # Linux artifacts
-        cp artifacts/x86_64-unknown-linux-gnu/*.tar.gz release/
-        cp artifacts/x86_64-unknown-linux-gnu/*.sha256 release/
+          # Linux artifacts
+          cp artifacts/x86_64-unknown-linux-gnu/*.tar.gz release/
+          cp artifacts/x86_64-unknown-linux-gnu/*.sha256 release/
 
-        # macOS artifacts
-        cp artifacts/x86_64-apple-darwin/*.tar.gz release/
-        cp artifacts/x86_64-apple-darwin/*.sha256 release/
-    - name: List downloaded artifacts
-      run: ls -R artifacts
-    - name: Upload to GitHub Release
-      uses: softprops/action-gh-release@v2
-      with:
-        files: release/*
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # macOS artifacts
+          cp artifacts/x86_64-apple-darwin/*.tar.gz release/
+          cp artifacts/x86_64-apple-darwin/*.sha256 release/
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
