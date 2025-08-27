@@ -1,58 +1,71 @@
-name: Build and Publish Rust Binaries
+name: Release
 
 on:
   push:
     tags:
-      - '*'
+      - 'v*.*.*'  # Triggers on version tags like v1.0.0
+
 jobs:
-  build-linux:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: x86_64-apple-darwin
+            os: macos-latest
+
+    name: Build for ${{ matrix.target }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+
+      - name: Build release binary
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Prepare binary archive
+        run: |
+          mkdir -p dist
+          BIN_NAME=$(basename $(pwd))
+          cp target/${{ matrix.target }}/release/$BIN_NAME dist/${BIN_NAME}-${{ matrix.target }}
+          tar -czvf ${BIN_NAME}-${{ matrix.target }}.tar.gz -C dist ${BIN_NAME}-${{ matrix.target }}
+          sha256sum ${BIN_NAME}-${{ matrix.target }}.tar.gz > ${BIN_NAME}-${{ matrix.target }}.tar.gz.sha256
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}-artifacts
+          path: |
+            *.tar.gz
+            *.tar.gz.sha256
+
+  release:
+    name: Upload Release Assets
+    needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
         with:
-          toolchain: stable
-          profile: minimal
-          override: true
-      - name: Build binary
-        run: cargo build --release
-      - name: Rename binary
-        run: mv target/release/longship longship-linux-amd64
-      - name: Generate SHA256
-        run: sha256sum longship-linux-amd64 > longship-linux-amd64.sha256
-      - name: Upload Release Assets
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          files: |
-            longship-linux-amd64
-            longship-linux-amd64.sha256
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          path: artifacts
 
-  build-macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-      - name: Build binary
-        run: cargo build --release
-      - name: Rename binary
-        run: mv target/release/longship longship-macos-amd64
-      - name: Generate SHA256
-        run: shasum -a 256 longship-macos-amd64 > longship-macos-amd64.sha256
-      - name: Upload Release Assets
+      - name: Prepare release assets
+        run: |
+          mkdir release
+          find artifacts -type f -name "*.tar.gz" -exec cp {} release/ \;
+          find artifacts -type f -name "*.sha256" -exec cp {} release/ \;
+
+      - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          files: |
-            longship-macos-amd64
-            longship-macos-amd64.sha256
+          files: release/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
