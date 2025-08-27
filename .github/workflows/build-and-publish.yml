@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*.*.*'  # Run workflow on version tags like v1.0.0
+      - 'v*.*.*'
 
 jobs:
   build:
@@ -16,7 +16,6 @@ jobs:
           - target: x86_64-apple-darwin
             os: macos-latest
 
-    name: Build for ${{ matrix.target }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,7 +27,7 @@ jobs:
           override: true
           target: ${{ matrix.target }}
 
-      - name: Build release binary
+      - name: Build binary
         run: |
           if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
             cargo build --release --target ${{ matrix.target }}
@@ -41,6 +40,36 @@ jobs:
           BIN_NAME=$(basename $(pwd))
           mkdir -p dist
           cp $BIN_PATH/$BIN_NAME dist/${BIN_NAME}-${{ matrix.target }}
+          cd dist
+          tar -czvf ${BIN_NAME}-${{ matrix.target }}.tar.gz ${BIN_NAME}-${{ matrix.target }}
+          shasum -a 256 ${BIN_NAME}-${{ matrix.target }}.tar.gz > ${BIN_NAME}-${{ matrix.target }}.tar.gz.sha256
 
-      - name: Package and checksum
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: dist/
+
+  release:
+    name: Upload to GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Move release assets
         run: |
+          mkdir release
+          find artifacts -name "*.tar.gz" -exec cp {} release/ \;
+          find artifacts -name "*.sha256" -exec cp {} release/
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
