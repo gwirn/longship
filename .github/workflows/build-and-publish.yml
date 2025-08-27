@@ -64,8 +64,9 @@ jobs:
       - name: Move release assets
         run: |
           mkdir release
-          find artifacts -name "*.tar.gz" -exec cp {} release/ \;
-          find artifacts -name "*.sha256" -exec cp {} release/
+          find artifacts -name "*.tar.gz" -exec cp {} release/ +
+          find artifacts -name "*.sha256" -exec cp {} release/ +
+
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
